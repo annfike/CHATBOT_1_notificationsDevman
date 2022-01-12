@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 from dotenv import load_dotenv
 import telegram
@@ -20,10 +21,10 @@ def main():
         try:
             response = requests.get(url, headers=headers, params=payload, timeout=100)
             response.raise_for_status()
-            response = response.json()
-            if response['status'] == 'found':
-                payload = {'timestamp': response['last_attempt_timestamp']}
-                lessons = response['new_attempts']
+            dvmn_lessons_check = response.json()
+            if dvmn_lessons_check['status'] == 'found':
+                payload = {'timestamp': dvmn_lessons_check['last_attempt_timestamp']}
+                lessons = dvmn_lessons_check['new_attempts']
                 for lesson in lessons:
                     lesson_title = lesson['lesson_title']
                     lesson_url = lesson['lesson_url']
@@ -33,13 +34,12 @@ def main():
                         comment = 'Преподавателю всё понравилось, можно приступать к следующему уроку!'
                     bot.send_message(text=f'У вас проверили работу "{lesson_title}" {lesson_url} \n {comment}', 
                         chat_id=chat_id)
-            elif response['status'] == 'timeout':
-                payload = {"timestamp": response['timestamp_to_request']}
-                bot.send_message(text='У вас нет работ на проверке!', chat_id=chat_id)
+            elif dvmn_lessons_check['status'] == 'timeout':
+                payload = {"timestamp": dvmn_lessons_check['timestamp_to_request']}
         except requests.exceptions.Timeout:
-            print('Timeout occurred')
+            continue
         except requests.exceptions.ConnectionError:
-            print('No connection')
+            time.sleep(20)
         
 
 
