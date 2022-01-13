@@ -62,6 +62,8 @@ def main():
             continue
         except requests.exceptions.ConnectionError:
             time.sleep(20)
+        except Exception:
+            logger.exception('Ошибка!')
         
 
 
