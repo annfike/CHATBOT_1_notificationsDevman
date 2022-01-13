@@ -6,24 +6,40 @@ import telegram
 import logging
 
 
-logging.basicConfig(level=logging.DEBUG)
-#logging.debug('Сообщение уровня DEBUG')
+#logging.basicConfig(level=logging.DEBUG)
 
+logger = logging.getLogger(__file__)
+
+class TelegramLogsHandler(logging.Handler):
+    def __init__(self, tg_bot, chat_id):
+        super().__init__()
+        self.chat_id = chat_id
+        self.tg_bot = tg_bot
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.tg_bot.send_message(chat_id=self.chat_id, text=log_entry)
 
 
 def main():
     load_dotenv()
     dvmn_token = os.getenv('DEVMAN_TOKEN')
     tg_token = os.getenv('TG_BOT_TOKEN')
+    tg_token_admin = os.getenv('TG_BOT_ADMIN_TOKEN')
     chat_id = os.getenv('CHAT_ID')
     
     url = 'https://dvmn.org/api/long_polling/'
     payload = {}
     headers = {'Authorization': f'Token {dvmn_token}'}
     bot = telegram.Bot(token=tg_token)
+    tg_bot = telegram.Bot(token=tg_token_admin)
+
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(TelegramLogsHandler(tg_bot, chat_id))
+    logger.info('Бот запущен.')
+    #logging.info('Бот запущен.')
 
     while True:
-        logging.info('Бот запущен.')
         try:
             response = requests.get(url, headers=headers, params=payload, timeout=100)
             response.raise_for_status()
