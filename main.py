@@ -3,6 +3,11 @@ import time
 import requests
 from dotenv import load_dotenv
 import telegram
+import logging
+
+
+logging.basicConfig(level=logging.DEBUG)
+#logging.debug('Сообщение уровня DEBUG')
 
 
 
@@ -18,6 +23,7 @@ def main():
     bot = telegram.Bot(token=tg_token)
 
     while True:
+        logging.info('Бот запущен.')
         try:
             response = requests.get(url, headers=headers, params=payload, timeout=100)
             response.raise_for_status()
