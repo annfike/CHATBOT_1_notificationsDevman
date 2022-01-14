@@ -6,8 +6,6 @@ import telegram
 import logging
 
 
-#logging.basicConfig(level=logging.DEBUG)
-
 logger = logging.getLogger(__file__)
 
 class TelegramLogsHandler(logging.Handler):
@@ -37,7 +35,6 @@ def main():
     logger.setLevel(logging.DEBUG)
     logger.addHandler(TelegramLogsHandler(tg_bot, chat_id))
     logger.info('Бот запущен.')
-    #logging.info('Бот запущен.')
 
     while True:
         try:
